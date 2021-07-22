@@ -58,7 +58,8 @@ setuptools.setup(
     ],
     packages=setuptools.find_packages(),
     install_requires=[
-        'Django>=2.0'
+        'Django>=2.0',
+        'django-admin-inline-paginator>=0.2'
     ],
     python_requires='>=3.5',
     cmdclass={

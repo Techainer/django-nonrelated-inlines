@@ -7,7 +7,7 @@ from django.forms import ALL_FIELDS
 from django.forms.models import modelform_defines_fields
 
 from .forms import NonrelatedInlineFormSet, nonrelated_inlineformset_factory
-
+from django_admin_inline_paginator.admin import TabularInlinePaginated, PaginationFormSetBase
 
 class NonrelatedInlineModelAdminChecks(InlineModelAdminChecks):
     """
@@ -23,7 +23,7 @@ class NonrelatedInlineModelAdminChecks(InlineModelAdminChecks):
         return []
 
 
-class NonrelatedStackedInline(admin.StackedInline):
+class NonrelatedStackedInline(TabularInlinePaginated):
     """
     Stacked inline base class for models not explicitly related to the inline
     model.
@@ -79,8 +79,15 @@ class NonrelatedStackedInline(admin.StackedInline):
         if defaults['fields'] is None and not modelform_defines_fields(defaults['form']):
             defaults['fields'] = ALL_FIELDS
 
-        return nonrelated_inlineformset_factory(
+        formset_class = nonrelated_inlineformset_factory(
             self.model,
             save_new_instance=self.save_new_instance,
             **defaults
         )
+
+        class PaginationFormSet(PaginationFormSetBase, formset_class):
+            pagination_key = self.pagination_key
+
+        PaginationFormSet.request = request
+        PaginationFormSet.per_page = self.per_page
+        return PaginationFormSet
